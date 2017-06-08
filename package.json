@@ -1,0 +1,23 @@
+{
+  "name": "node-go-benchmarks",
+  "version": "1.0.0",
+  "description": "This repo is created for capabilities comparison of Node.js and golang",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VitaliiBorodii/node-go-benchmarks.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VitaliiBorodii/node-go-benchmarks/issues"
+  },
+  "homepage": "https://github.com/VitaliiBorodii/node-go-benchmarks#readme",
+  "dependencies": {
+    "http-router": "^0.5.0"
+  }
+}
