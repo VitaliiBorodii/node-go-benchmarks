@@ -59,7 +59,7 @@
       return
     }
 
-
+    var start = Date.now();
     var promises = [];
     for (let i = 0; i < n; i++) {
       promises.push(bin(i))
@@ -73,7 +73,9 @@
         console.log(responses.map(r => r.response));
         const overallTime = responses.reduce((acc, r) => (acc + r.time), 0);
         console.log('Overall time: ', overallTime / 1000, 's');
-        outputElement.innerHTML += `<b>Overall requests time: ${overallTime} ms</b>`;
+        outputElement.innerHTML += `<b>Overall execution time: <u>${overallTime}</u> ms</b>`;
+        outputElement.innerHTML += '</br>';
+        outputElement.innerHTML += `<b>Overall requests time: <u>${Date.now() - start}</u> ms</b>`;
       })
       .catch(console.error.bind(console));
   };
