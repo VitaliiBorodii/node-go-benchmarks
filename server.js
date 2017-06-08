@@ -1,6 +1,6 @@
 const http = require('http');
 const util = require('util');
-const benc = require('./binary-trees/benc.js');
+const binaryTrees = require('./bench/binary-trees');
 const cluster = require('cluster');
 const path = require('path');
 const fs = require('fs');
@@ -16,42 +16,8 @@ const BINARY_TREES = "/binary-trees";
 
 const binaryURL = path.join(BENCH + BINARY_TREES + '/:id');
 
-const serveFile = (req, res, filePath) => {
-  fs.createReadStream(filePath).pipe(res);
-};
-
-const serveFolder = (req, res, folderPath) => {
-  fs.readdir(folderPath, (err, files) => {
-
-    if (err) {
-      res.writeHead(500);
-      return res.end(err.message);
-    }
-
-    if (~files.indexOf('index.html')) {
-      return serveFile(req, res, path.join(folderPath, 'index.html'));
-    }
-
-    const response = `<pre>${files
-      .map(f => `<a href="${path.join(req.url, f, '/')}">${f}/</a>`)
-      .join('</br>')}</pre>`;
-
-    res.end(response);
-  });
-};
-
-const serveStatic = (req, res) => {
-  var fullPath = path.join(__dirname, './public', url.parse(req.url).pathname);
-
-  fs.stat(fullPath, (err, stats) => {
-
-    if (err) {
-      res.writeHead(404);
-      return res.end(err.message);
-    }
-
-    stats.isDirectory() ? serveFolder(req, res, fullPath) : serveFile(req, res, fullPath);
-  })
+const serveIndex = (req, res) => {
+  fs.createReadStream(path.join(__dirname, './public/index.html')).pipe(res);
 };
 
 const binaryTreesHandler = (req, res) => {
@@ -72,14 +38,33 @@ const binaryTreesHandler = (req, res) => {
   }
 
   res.writeHead(200, {'Content-Type': 'application/json'});
-  res.end(JSON.stringify(benc.Benc(n)))
+  res.end(JSON.stringify(binaryTrees(n)))
+};
+
+const routesHandler = (req, res) => {
+  const links = [
+    BINARY_TREES
+  ];
+
+  let response = '<pre>';
+
+  links.forEach(link => {
+    response += `<a href="${link}/">${link}/</a></br>`;
+  });
+
+  response += '</pre>';
+
+  res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+  res.end(response);
 };
 
 routes.get(binaryURL, binaryTreesHandler);
+routes.get('/', routesHandler);
+routes.get(BINARY_TREES + '/', serveIndex); //@TODO; find a way to optimize this!!
+routes.get(BINARY_TREES + '/:?', serveIndex);
 
 
 if (cluster.isMaster) {
-  console.log("Running within", numCPUs, "CPU cores");
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
@@ -89,7 +74,8 @@ if (cluster.isMaster) {
 
   http.createServer((req, res) => {
       if (!routes.route(req, res)) {
-        serveStatic(req, res);
+        res.writeHead(501);
+        res.end(http.STATUS_CODES[501] + '\n');
       }
     })
     .listen(8002);

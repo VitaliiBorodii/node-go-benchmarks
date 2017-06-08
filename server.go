@@ -3,20 +3,23 @@ package main
 import (
 	"github.com/gorilla/mux"
 
-
-	"./binary-trees"
+	. "./bench"
 
 	"fmt"
 	"net/http"
 	"strconv"
 	"encoding/json"
-	"runtime"
+	"io"
 )
 
 const (
 	BENCH = "/bench/"
 	BINARY_TREES = "/binary-trees"
 )
+
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./public/index.html")
+}
 
 func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	index := len(BINARY_TREES) + len(BENCH)
@@ -33,7 +36,7 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := benc.Benc(int(n))
+	result := BinaryTrees(int(n))
 
 	b, err := json.Marshal(result)
 	if err != nil {
@@ -43,17 +46,39 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("%s\n", string(b))))
 }
 
+func routesHandler(w http.ResponseWriter, r *http.Request) {
+
+	links := [...]string{
+		BINARY_TREES,
+	}
+
+	response := "<pre>"
+
+	for _, link := range links {
+		response += fmt.Sprintf("<a href='%s/'>%s/</a></br>", link, link)
+	}
+
+	response += "</pre>"
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	io.WriteString(w, response)
+}
+
 func main() {
-	numCPUs := runtime.NumCPU()
-	runtime.GOMAXPROCS(numCPUs * 2)
-	fmt.Println("Running within", numCPUs, "CPU cores")
 
 	r := mux.NewRouter()
 
 	bench := r.PathPrefix(BENCH)
-	bench.Subrouter().HandleFunc(BINARY_TREES + "/{key}", binaryTreesHandler)
+	subBench := bench.Subrouter()
 
-	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("public"))))
+	subBench.HandleFunc(BINARY_TREES + "/{key}", binaryTreesHandler)
+
+	public := r.PathPrefix("/").Subrouter()
+	public.HandleFunc(BINARY_TREES + "/", serveIndex)
+
+
+	public.HandleFunc("/", routesHandler)
+
 	http.Handle("/", r)
 
 	fmt.Println("Server is listening at http://localhost:8001")

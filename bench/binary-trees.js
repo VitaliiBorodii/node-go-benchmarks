@@ -22,7 +22,7 @@ const bottomUpTree = (depth) => {
   return new TreeNode(arg, arg);
 };
 
-module.exports.Benc = (n = 0) => {
+module.exports = (n = 0) => {
   const start = Date.now();
   const response = [];
 

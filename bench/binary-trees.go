@@ -16,12 +16,16 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"runtime"
 )
 
 var minDepth = 4
 
-func Benc(n int) (response []string) {
+func BinaryTrees(n int) (response []string) {
 	var start = time.Now()
+
+	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+
 	maxDepth := n
 	if minDepth+2 > n {
 		maxDepth = minDepth + 2
