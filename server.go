@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -35,12 +36,13 @@ func serveCSS(w http.ResponseWriter, r *http.Request) {
 }
 
 func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
-	index := len(BINARY_TREES) + len(BENCH)
-	path := r.URL.Path[index:]
-	n, err := strconv.ParseInt(path, 10, 64)
+	pathSlice := strings.Split(r.URL.Path, "/")
+	arg := pathSlice[len(pathSlice) - 1]
+
+	n, err := strconv.ParseInt(arg, 10, 64)
 
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Bad Request: `%s` is not a number", path), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Bad Request: `%s` is not a number", arg), http.StatusBadRequest)
 		return
 	}
 
@@ -81,19 +83,15 @@ func main() {
 
 	r := mux.NewRouter()
 
-	bench := r.PathPrefix(BENCH)
-	subBench := bench.Subrouter()
+	benchRouter := r.PathPrefix(BENCH).Subrouter()
 
-	subBench.HandleFunc(BINARY_TREES + "/{key}", binaryTreesHandler)
+	publicRouter := r.PathPrefix("/").Subrouter()
+	publicRouter.HandleFunc("/", routesHandler)
+	publicRouter.HandleFunc("/{*}.js", serveJS)
+	publicRouter.HandleFunc("/{*}.css", serveCSS)
 
-	public := r.PathPrefix("/").Subrouter()
-	public.HandleFunc("/{*}.js", serveJS)
-	public.HandleFunc("/{*}.css", serveCSS)
-
-	public.HandleFunc(BINARY_TREES + "/", serveIndex)
-
-
-	public.HandleFunc("/", routesHandler)
+	publicRouter.HandleFunc(BINARY_TREES + "/", serveIndex)
+	benchRouter.HandleFunc(BINARY_TREES + "/{arg}", binaryTreesHandler)
 
 	http.Handle("/", r)
 

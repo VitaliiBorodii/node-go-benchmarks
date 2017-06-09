@@ -3,43 +3,34 @@ const util = require('util');
 const cluster = require('cluster');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const express = require('express');
 
-
-const app = express();
 const binaryTrees = require('./bench/binary-trees');
 
-const numCPUs = require('os').cpus().length;
+const app = express();
+
 const BENCH = "/bench/";
 const BINARY_TREES = "/binary-trees";
 
-const binaryURL = path.join(BENCH + BINARY_TREES + '/:id');
-
 const serveFile = (fileName, req, res) => fs.createReadStream(path.join(__dirname, './public/', fileName)).pipe(res);
-
 const serveIndex = serveFile.bind(null, 'index.html');
 const serveJS = serveFile.bind(null, 'main.js');
 const serveCSS = serveFile.bind(null, 'main.css');
 
 const binaryTreesHandler = (req, res) => {
-  const path = req.url.split('/')[1];
 
-  const n = parseInt(req.params.id);
+  const n = parseInt(req.params.arg);
 
   if (isNaN(n)) {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end(util.format('Bad Request: `%s` is not a number', path));
-    return
+    return res.status(400).send(util.format('Bad Request: `%s` is not a number', req.params.arg));
   }
 
   if (n > 25) {
-    res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end(util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n));
-    return
+    return res.status(400).send(util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n));
   }
 
-  res.writeHead(200, {'Content-Type': 'application/json'});
-  res.end(JSON.stringify(binaryTrees(n)))
+  res.status(200).json(binaryTrees(n));
 };
 
 const routesHandler = (req, res) => {
@@ -55,18 +46,24 @@ const routesHandler = (req, res) => {
 
   response += '</pre>';
 
-  res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-  res.end(response);
+  res.status(200).send(response);
 };
 
-app.get(binaryURL, binaryTreesHandler);
-app.get('/', routesHandler);
-app.get('*.js', serveJS);
-app.get('*.css', serveCSS);
-app.get(BINARY_TREES + '/*', serveIndex);
+const staticRouter = express.Router();
+const benchRouter = express.Router();
+
+staticRouter.get('/', routesHandler);
+staticRouter.get('*.js', serveJS);
+staticRouter.get('*.css', serveCSS);
+
+staticRouter.get(BINARY_TREES + '/*', serveIndex);
+benchRouter.get(`${BINARY_TREES}/:arg`, binaryTreesHandler);
+
+app.use('/', staticRouter);
+app.use(BENCH, benchRouter);
 
 if (cluster.isMaster) {
-  for (let i = 0; i < numCPUs; i++) {
+  for (let i = 0; i < os.cpus().length; i++) {
     cluster.fork();
   }
   console.log("Server is listening at http://localhost:8002")
