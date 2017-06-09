@@ -94,6 +94,9 @@
 
   const start = getQueryVariable('start');
   const end = getQueryVariable('end');
+
+  document.getElementById('input-start').value = start;
+  document.getElementById('input-end').value = end;
   calculate(Number(start), Number(end));
 
 })();
