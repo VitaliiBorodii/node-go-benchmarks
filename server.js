@@ -63,7 +63,7 @@ staticRouter.get('/', routesHandler);
 staticRouter.get('*.js', serveJS);
 staticRouter.get('*.css', serveCSS);
 
-staticRouter.get(BINARY_TREES + '*', serveIndex);
+staticRouter.get(`${BINARY_TREES}/`, serveIndex);
 benchRouter.get(`${BINARY_TREES}/:arg`, binaryTreesHandler);
 
 app.use('/', staticRouter);
