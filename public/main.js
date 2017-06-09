@@ -1,6 +1,8 @@
 (() => {
 
-  var outputElement = document.getElementById('output');
+  var output = document.getElementById('output');
+  var input = document.getElementById('input-arg');
+  var form = document.getElementById('form');
 
   var getQueryVariable = (variable) => {
     var query = window.location.search.substring(1);
@@ -53,28 +55,30 @@
           html += ``;
           html += '</details></pre>';
           html += '<hr>';
-          outputElement.innerHTML += html;
+          output.innerHTML += html;
         })
         .catch(reject);
     });
   };
 
-  var calculate = (start, end) => {
+  var prevent = (e) => {
+    e.preventDefault();
+  };
 
-    console.log(start, end)
+  var calculate = (e) => {
 
-    if (isNaN(start) || isNaN(end)) {
+    var args = input.value.split(',');
+    var startTime = Date.now();
+
+    var promises = args.map(arg => bin(arg.trim()));
+
+    output.innerHTML = '';
+
+    if (!promises.length) {
       return
     }
 
-    var startTime = Date.now();
-    var promises = [];
-    for (let i = start; i <= end; i++) {
-      console.log('bin(', i, ')');
-      promises.push(bin(i))
-    }
-
-    outputElement.innerHTML = '';
+    form.removeEventListener('submit', calculate);
 
     Promise.all(promises)
       .then((responses) => {
@@ -87,16 +91,16 @@
         html += `<span class="result">Summary time of all requests: <u>${overallTime}</u> ms</span>`;
         html += '</pre>';
 
-        outputElement.innerHTML += html
+        output.innerHTML += html;
+        form.addEventListener('submit', calculate);
       })
-      .catch(console.error.bind(console));
+      .catch(err => {
+        console.error(err);
+        form.addEventListener('submit', calculate);
+      });
   };
 
-  const start = getQueryVariable('start');
-  const end = getQueryVariable('end');
-
-  document.getElementById('input-start').value = start;
-  document.getElementById('input-end').value = end;
-  calculate(Number(start), Number(end));
+  form.addEventListener('submit', prevent);
+  form.addEventListener('submit', calculate);
 
 })();

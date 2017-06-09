@@ -20,10 +20,11 @@ const serveCSS = serveFile.bind(null, 'main.css');
 
 const binaryTreesHandler = (req, res) => {
 
-  const n = parseInt(req.params.arg);
+  const arg = req.params.arg;
+  const n = parseInt(arg);
 
-  if (isNaN(n)) {
-    return res.status(400).send(util.format('Bad Request: `%s` is not a number', req.params.arg));
+  if (isNaN(n) || (n.toString() !== arg)) {
+    return res.status(400).send(util.format('Bad Request: `%s` is not a number', arg));
   }
 
   if (n > 25) {
@@ -56,7 +57,7 @@ staticRouter.get('/', routesHandler);
 staticRouter.get('*.js', serveJS);
 staticRouter.get('*.css', serveCSS);
 
-staticRouter.get(BINARY_TREES + '/*', serveIndex);
+staticRouter.get(BINARY_TREES + '*', serveIndex);
 benchRouter.get(`${BINARY_TREES}/:arg`, binaryTreesHandler);
 
 app.use('/', staticRouter);

@@ -24,3 +24,7 @@
 .code-block summary {
     cursor: pointer;
 }
+
+.form-button {
+    text-align: center;
+}
