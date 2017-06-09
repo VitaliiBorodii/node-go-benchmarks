@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"encoding/json"
 	"io"
+	"path/filepath"
 )
 
 const (
@@ -17,8 +18,20 @@ const (
 	BINARY_TREES = "/binary-trees"
 )
 
+func serveFile(fileName string, w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("./public/", fileName))
+}
+
 func serveIndex(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./public/index.html")
+	serveFile("index.html", w, r)
+}
+
+func serveJS(w http.ResponseWriter, r *http.Request) {
+	serveFile("main.js", w, r)
+}
+
+func serveCSS(w http.ResponseWriter, r *http.Request) {
+	serveFile("main.css", w, r)
 }
 
 func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +45,7 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if (n > 25) {
-		http.Error(w, fmt.Sprintf("Bad Request: `n` must be lower then 25 (got %d)", n), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Bad Request: `argument` must be lower or equal then 25 (got %d)", n), http.StatusBadRequest)
 		return
 	}
 
@@ -74,6 +87,9 @@ func main() {
 	subBench.HandleFunc(BINARY_TREES + "/{key}", binaryTreesHandler)
 
 	public := r.PathPrefix("/").Subrouter()
+	public.HandleFunc("/{*}.js", serveJS)
+	public.HandleFunc("/{*}.css", serveCSS)
+
 	public.HandleFunc(BINARY_TREES + "/", serveIndex)
 
 

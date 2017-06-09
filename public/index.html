@@ -3,107 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Binary Trees</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script async defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script async src="/main.js"></script>
+    <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-<form id="form">
-    <label>
-        <span>Please enter number of iterations:</span>
-        <input name="iterations" id="input" type="number" min="0" max="25"/>
-    </label>
-    <button>Calculate</button>
-</form>
-<div id="output">
+<div class="mdl-layout">
+    <form id="form" class="mdl-layout__content">
+        <div class="mdl-layout__content-row mdl-grid">
+            <div class="mdl-textfield mdl-js-textfield mdl-cell mdl-cell-col">
+                <input class="mdl-textfield__input" name="start" id="input-start" type="number"/>
+                <label class="mdl-textfield__label" for="input-start">Enter the start point</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-cell mdl-cell-col">
+                <input class="mdl-textfield__input" name="end" id="input-end" type="number" min="0" max="25"/>
+                <label class="mdl-textfield__label" for="input-end">Enter the end point</label>
+            </div>
+
+            <div class="mdl-textfield mdl-cell mdl-cell-col">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Calculate</button>
+            </div>
+        </div>
+    </form>
+    <div class="mdl-layout__content code-block" id="output">
+    </div>
 </div>
-<script>
-    (() => {
-
-        var outputElement = document.getElementById('output');
-
-    var getQueryVariable = (variable) => {
-        var query = window.location.search.substring(1);
-        var vars = query.split('&');
-        for (var i = 0; i < vars.length; i++) {
-            var pair = vars[i].split('=');
-            if (decodeURIComponent(pair[0]) == variable) {
-                return decodeURIComponent(pair[1]);
-            }
-        }
-    };
-
-    var bin = (num) => {
-
-        return new Promise((resolve, reject) => {
-                    const t = Date.now();
-        let ok;
-
-        const response = {
-            argument: num,
-            response: null,
-            time: null,
-            error: null
-        };
-
-        fetch(`/bench${location.pathname}${num}`)
-                .then((r) => {
-            ok = r.ok;
-        return ok ? r.json() : r.text()
-    })
-    .then((r) => {
-            var html = '<pre>';
-        html += `<i>Result(${num}) :</i>`;
-        html += '</br>';
-
-        response.time = Date.now() - t;
-        if (ok) {
-            response.response = r;
-            r.forEach(row => {
-                html += `<span>${row}</span>`;
-        })
-        } else {
-            response.error = r;
-        }
-        resolve(response);
-        html += `<span>Request time: ${response.time} ms</span>`;
-        html += '</pre>';
-        html += '</hr>';
-        outputElement.innerHTML += html;
-    })
-    .catch(reject);
-    });
-    };
-
-    var calculate = (n) => {
-        if (isNaN(n)) {
-            return
-        }
-
-        var start = Date.now();
-        var promises = [];
-        for (let i = 0; i < n; i++) {
-            promises.push(bin(i))
-        }
-
-        outputElement.innerHTML = '';
-
-        Promise.all(promises)
-                .then((responses) => {
-            console.log('Responses:');
-        console.log(responses.map(r => r.response));
-        const overallTime = responses.reduce((acc, r) => (acc + r.time), 0);
-        console.log('Overall time: ', overallTime / 1000, 's');
-        outputElement.innerHTML += '</br>';
-        outputElement.innerHTML += `<b>Overall time: <u>${Date.now() - start}</u> ms</b>`;
-        outputElement.innerHTML += '</br>';
-        outputElement.innerHTML += `<b>Summary time of all requests: <u>${overallTime}</u> ms</b>`;
-    })
-    .catch(console.error.bind(console));
-    };
-
-    const n = getQueryVariable('iterations');
-    calculate(n);
-
-    })();
-
-</script>
 </body>
 </html>

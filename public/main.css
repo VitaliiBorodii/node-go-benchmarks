@@ -1,0 +1,26 @@
+.code-block pre {
+    padding: 10px;
+    margin: 0;
+    background: black;
+    color: green;
+}
+
+.code-block pre .result {
+    color: white;
+}
+
+.code-block pre .result-yellow {
+    color: yellow;
+}
+
+.code-block pre .result-red {
+    color: red;
+}
+
+.code-block hr {
+    margin: 0;
+}
+
+.code-block summary {
+    cursor: pointer;
+}

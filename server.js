@@ -1,24 +1,25 @@
 const http = require('http');
 const util = require('util');
-const binaryTrees = require('./bench/binary-trees');
 const cluster = require('cluster');
 const path = require('path');
 const fs = require('fs');
-const url = require('url');
+const express = require('express');
 
-const router = require('http-router');
+
+const app = express();
+const binaryTrees = require('./bench/binary-trees');
+
 const numCPUs = require('os').cpus().length;
-
-const routes = router.createRouter();
-
 const BENCH = "/bench/";
 const BINARY_TREES = "/binary-trees";
 
 const binaryURL = path.join(BENCH + BINARY_TREES + '/:id');
 
-const serveIndex = (req, res) => {
-  fs.createReadStream(path.join(__dirname, './public/index.html')).pipe(res);
-};
+const serveFile = (fileName, req, res) => fs.createReadStream(path.join(__dirname, './public/', fileName)).pipe(res);
+
+const serveIndex = serveFile.bind(null, 'index.html');
+const serveJS = serveFile.bind(null, 'main.js');
+const serveCSS = serveFile.bind(null, 'main.css');
 
 const binaryTreesHandler = (req, res) => {
   const path = req.url.split('/')[1];
@@ -33,7 +34,7 @@ const binaryTreesHandler = (req, res) => {
 
   if (n > 25) {
     res.writeHead(400, {'Content-Type': 'text/plain'});
-    res.end(util.format('Bad Request: `n` must be lower then 25 (got %d)', n));
+    res.end(util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n));
     return
   }
 
@@ -58,11 +59,11 @@ const routesHandler = (req, res) => {
   res.end(response);
 };
 
-routes.get(binaryURL, binaryTreesHandler);
-routes.get('/', routesHandler);
-routes.get(BINARY_TREES + '/', serveIndex); //@TODO; find a way to optimize this!!
-routes.get(BINARY_TREES + '/:?', serveIndex);
-
+app.get(binaryURL, binaryTreesHandler);
+app.get('/', routesHandler);
+app.get('*.js', serveJS);
+app.get('*.css', serveCSS);
+app.get(BINARY_TREES + '/*', serveIndex);
 
 if (cluster.isMaster) {
   for (let i = 0; i < numCPUs; i++) {
@@ -72,12 +73,7 @@ if (cluster.isMaster) {
 
 } else {
 
-  http.createServer((req, res) => {
-      if (!routes.route(req, res)) {
-        res.writeHead(501);
-        res.end(http.STATUS_CODES[501] + '\n');
-      }
-    })
+  http.createServer(app)
     .listen(8002);
 }
 
