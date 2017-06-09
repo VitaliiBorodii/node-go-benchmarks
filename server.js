@@ -18,17 +18,23 @@ const serveIndex = serveFile.bind(null, 'index.html');
 const serveJS = serveFile.bind(null, 'main.js');
 const serveCSS = serveFile.bind(null, 'main.css');
 
-const binaryTreesHandler = (req, res) => {
+const binaryTreesHandler = (req, res, next) => {
 
   const arg = req.params.arg;
   const n = parseInt(arg);
 
   if (isNaN(n) || (n.toString() !== arg)) {
-    return res.status(400).send(util.format('Bad Request: `%s` is not a number', arg));
+    return next({
+      status: 400,
+      message: util.format('Bad Request: `%s` is not a number', arg)
+    });
   }
 
   if (n > 25) {
-    return res.status(400).send(util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n));
+    return next({
+      status: 400,
+      message: util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n)
+    });
   }
 
   res.status(200).json(binaryTrees(n));
@@ -62,6 +68,23 @@ benchRouter.get(`${BINARY_TREES}/:arg`, binaryTreesHandler);
 
 app.use('/', staticRouter);
 app.use(BENCH, benchRouter);
+
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+  next({
+    status: 404,
+    message: 'Not Found'
+  });
+});
+
+// error handler
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(err.status || 500)
+    .send(err.message)
+});
 
 if (cluster.isMaster) {
   for (let i = 0; i < os.cpus().length; i++) {
