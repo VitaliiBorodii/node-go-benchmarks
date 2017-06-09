@@ -83,12 +83,9 @@
     Promise.all(promises)
       .then((responses) => {
         console.log('Responses:');
-        console.log(responses.map(r => r.response));
-        const overallTime = responses.reduce((acc, r) => (acc + r.time), 0);
+        console.log(responses);
         let html = '<pre>';
-        html += `<span class="result">Overall time: <u>${Date.now() - startTime}</u> ms</span>`;
-        html += '<br>'
-        html += `<span class="result">Summary time of all requests: <u>${overallTime}</u> ms</span>`;
+        html += `<span class="result"><b>Overall time: <u>${Date.now() - startTime}</u> ms</b></span>`;
         html += '</pre>';
 
         output.innerHTML += html;
