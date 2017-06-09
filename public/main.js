@@ -4,17 +4,6 @@
   var input = document.getElementById('input-arg');
   var form = document.getElementById('form');
 
-  var getQueryVariable = (variable) => {
-    var query = window.location.search.substring(1);
-    var vars = query.split('&');
-    for (var i = 0; i < vars.length; i++) {
-      var pair = vars[i].split('=');
-      if (decodeURIComponent(pair[0]) == variable) {
-        return decodeURIComponent(pair[1]);
-      }
-    }
-  };
-
   var bin = (num) => {
 
     return new Promise((resolve, reject) => {
@@ -99,5 +88,11 @@
 
   form.addEventListener('submit', prevent);
   form.addEventListener('submit', calculate);
+
+  document.title = location.pathname
+    .slice(1, -1)
+    .split('-')
+    .map(p => `${p[0].toUpperCase()}${p.slice(1)}`)
+    .join(' ');
 
 })();
