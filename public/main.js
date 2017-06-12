@@ -7,46 +7,49 @@
   var bin = (num) => {
 
     return new Promise((resolve, reject) => {
-      const t = Date.now();
-      let ok;
+      setTimeout(() => {
 
-      const response = {
-        argument: num,
-        response: null,
-        time: null,
-        error: null
-      };
+        const t = Date.now();
+        let ok;
 
-      fetch(`/bench${location.pathname}${num}`)
-        .then((r) => {
-          ok = r.ok;
-          return ok ? r.json() : r.text()
-        })
-        .then((r) => {
-          response.time = Date.now() - t;
-          var html = '<pre><details>';
-          html += '<summary>';
-          html += `<span class="result">Result(${num}): </span>`;
-          html += `<span class="result-yellow">${response.time} ms</span>`;
-          html += '</summary>';
-          html += '<br>';
+        const response = {
+          argument: num,
+          response: null,
+          time: null,
+          error: null
+        };
 
-          if (ok) {
-            response.response = r;
-            r.forEach(row => {
-              html += `<span>${row}</span>`;
-            })
-          } else {
-            response.error = r;
-            html += `<span class="result-red">${r}</span>`;
-          }
-          resolve(response);
-          html += ``;
-          html += '</details></pre>';
-          html += '<hr>';
-          output.innerHTML += html;
-        })
-        .catch(reject);
+        fetch(`/bench${location.pathname}${num}`)
+          .then((r) => {
+            ok = r.ok;
+            return ok ? r.json() : r.text()
+          })
+          .then((r) => {
+            response.time = Date.now() - t;
+            var html = '<pre><details>';
+            html += '<summary>';
+            html += `<span class="result">Result(${num}): </span>`;
+            html += `<span class="result-yellow">${response.time} ms</span>`;
+            html += '</summary>';
+            html += '<br>';
+
+            if (ok) {
+              response.response = r;
+              r.forEach(row => {
+                html += `<span>${row}</span>`;
+              })
+            } else {
+              response.error = r;
+              html += `<span class="result-red">${r}</span>`;
+            }
+            resolve(response);
+            html += ``;
+            html += '</details></pre>';
+            html += '<hr>';
+            output.innerHTML += html;
+          })
+          .catch(reject);
+      }, Math.round((Math.random() * 1000)));  //to emulate real-time experience
     });
   };
 
