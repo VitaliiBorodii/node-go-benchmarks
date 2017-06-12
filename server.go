@@ -12,12 +12,15 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+	"io/ioutil"
 )
 
 const (
 	BENCH = "/bench/"
-	BINARY_TREES = "/binary-trees"
 )
+
+var endpoints map[string]string
+
 
 func serveFile(fileName string, w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("./public/", fileName))
@@ -63,14 +66,10 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 
 func routesHandler(w http.ResponseWriter, r *http.Request) {
 
-	links := [...]string{
-		BINARY_TREES,
-	}
-
 	response := "<pre>"
 
-	for _, link := range links {
-		response += fmt.Sprintf("<a href='%s/'>%s/</a></br>", link, link)
+	for _, link := range endpoints {
+		response += fmt.Sprintf("<a href='%s'>%s</a></br>", link, link)
 	}
 
 	response += "</pre>"
@@ -85,13 +84,25 @@ func main() {
 
 	benchRouter := r.PathPrefix(BENCH).Subrouter()
 
-	publicRouter := r.PathPrefix("/").Subrouter()
-	publicRouter.HandleFunc("/", routesHandler)
-	publicRouter.HandleFunc("/{*}.js", serveJS)
-	publicRouter.HandleFunc("/{*}.css", serveCSS)
+	staticRouter := r.PathPrefix("/").Subrouter()
+	staticRouter.HandleFunc("/", routesHandler)
+	staticRouter.HandleFunc("/{*}.js", serveJS)
+	staticRouter.HandleFunc("/{*}.css", serveCSS)
+	
+	raw, err := ioutil.ReadFile("./benchmarks.json")
 
-	publicRouter.HandleFunc(BINARY_TREES + "/", serveIndex)
-	benchRouter.HandleFunc(BINARY_TREES + "/{arg}", binaryTreesHandler)
+	if (err != nil) {
+		panic(err);
+	}
+
+	json.Unmarshal(raw, &endpoints)
+
+	for _, url := range endpoints {
+		fmt.Println(url)
+		staticRouter.HandleFunc(url, serveIndex)
+	}
+
+	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["BINARY_TREES"]), binaryTreesHandler)
 
 	http.Handle("/", r)
 

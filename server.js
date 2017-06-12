@@ -7,11 +7,10 @@ const os = require('os');
 const express = require('express');
 
 const binaryTrees = require('./bench/binary-trees');
-
+const endpoints = require('./benchmarks.json');
 const app = express();
 
 const BENCH = "/bench/";
-const BINARY_TREES = "/binary-trees";
 
 const serveFile = (fileName, req, res) => fs.createReadStream(path.join(__dirname, './public/', fileName)).pipe(res);
 const serveIndex = serveFile.bind(null, 'index.html');
@@ -41,14 +40,12 @@ const binaryTreesHandler = (req, res, next) => {
 };
 
 const routesHandler = (req, res) => {
-  const links = [
-    BINARY_TREES
-  ];
 
   let response = '<pre>';
 
-  links.forEach(link => {
-    response += `<a href="${link}/">${link}/</a></br>`;
+  Object.keys(endpoints).forEach(key => {
+    const link = endpoints[key];
+    response += `<a href="${link}">${link}</a></br>`;
   });
 
   response += '</pre>';
@@ -63,8 +60,12 @@ staticRouter.get('/', routesHandler);
 staticRouter.get('*.js', serveJS);
 staticRouter.get('*.css', serveCSS);
 
-staticRouter.get(`${BINARY_TREES}/`, serveIndex);
-benchRouter.get(`${BINARY_TREES}/:arg`, binaryTreesHandler);
+Object.keys(endpoints).forEach((key) => {
+  const url = endpoints[key];
+  staticRouter.get(url, serveIndex);
+});
+
+benchRouter.get(`${endpoints.BINARY_TREES}:arg`, binaryTreesHandler);
 
 app.use('/', staticRouter);
 app.use(BENCH, benchRouter);
