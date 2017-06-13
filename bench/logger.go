@@ -34,14 +34,13 @@ type readResult struct {
 }
 
 func generateUUID() string {
-	first := strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond), 16)
-	second := strconv.FormatInt(rand.Int63(), 16)
-	first = first[len(first) - 4:]
-	second = second[len(second) - 8:]
+	timestamp := strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond), 16)
+	rand1 := strconv.FormatInt(rand.Int63(), 16)
+	rand2 := strconv.FormatInt(rand.Int63(), 16)
 	ff := "gola"
-	fs := first
-	sf := second[4:]
-	ss := second[:4]
+	fs := timestamp[len(timestamp) - 4:]
+	sf := rand1[len(rand1) - 4:]
+	ss := rand2[len(rand2) - 4:]
 	return fmt.Sprintf("%s-%s-%s-%s", ff, fs, sf, ss)
 
 }

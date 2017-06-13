@@ -2,12 +2,10 @@ const fs = require('fs')
 const path = require('path')
 
 generateUUID = () => {
-  const first = Date.now().toString(16).slice(-4)
-  const second = Math.random().toString(16).slice(-8)
   const ff = 'node'
-  const fs = first
-  const sf = second.slice(0, 4)
-  const ss = second.slice(4, 8)
+  const fs = Date.now().toString(16).slice(-4)
+  const sf = Math.random().toString(16).slice(-4)
+  const ss = Math.random().toString(16).slice(-4)
   return `${ff}-${fs}-${sf}-${ss}`
 }
 
