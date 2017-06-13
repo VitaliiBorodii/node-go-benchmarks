@@ -7,6 +7,8 @@
   var bin = (num) => {
 
     return new Promise((resolve, reject) => {
+      const delay = Math.round((Math.random() * 1000));
+
       setTimeout(() => {
 
         const t = Date.now();
@@ -26,6 +28,7 @@
           })
           .then((r) => {
             response.time = Date.now() - t;
+            response.delay = delay;
             var html = '<pre><details>';
             html += '<summary>';
             html += `<span class="result">Result(${num}): </span>`;
@@ -49,7 +52,7 @@
             output.innerHTML += html;
           })
           .catch(reject);
-      }, Math.round((Math.random() * 1000)));  //to emulate real-time experience
+      }, delay);  //to emulate real-time experience
     });
   };
 
@@ -75,8 +78,10 @@
     Promise.all(promises)
       .then((responses) => {
         const overallTime = responses.reduce((acc, r) => (acc + r.time), 0);
+        const overallDelays = Math.max.apply(null, responses.map(r =>  r.delay)); //max delay
+
         let html = '<pre>';
-        html += `<span class="result">Overall time: <u>${Date.now() - startTime}</u> ms</span>`;
+        html += `<span class="result">Overall time: <u>${Date.now() - (startTime + overallDelays)}</u> ms</span>`;
         html += '<br>';
         html += `<span class="result">Summary time of ${responses.length} requests: <u>${overallTime}</u> ms</span>`;
         html += '</pre>';
