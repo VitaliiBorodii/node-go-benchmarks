@@ -37,6 +37,31 @@ func serveCSS(w http.ResponseWriter, r *http.Request) {
 	serveFile("main.css", w, r)
 }
 
+func loggerHandler(w http.ResponseWriter, r *http.Request) {
+	pathSlice := strings.Split(r.URL.Path, "/")
+	arg := pathSlice[len(pathSlice)-1]
+	result := Logger(RequestInfo{
+		r.URL.Path,
+		r.Method,
+		arg,
+		r.Header.Get("user-agent"),
+	})
+
+	if result.Error != nil {
+		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	jsonR, err := json.Marshal(result.Result)
+
+	if err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write([]byte(fmt.Sprintf("%s\n", jsonR)))
+
+}
+
 func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	pathSlice := strings.Split(r.URL.Path, "/")
 	arg := pathSlice[len(pathSlice)-1]
@@ -101,7 +126,7 @@ func main() {
 	}
 
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["BINARY_TREES"]), binaryTreesHandler)
-	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), Logger)
+	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), loggerHandler)
 
 	http.Handle("/", r)
 

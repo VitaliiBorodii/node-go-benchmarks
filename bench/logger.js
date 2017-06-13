@@ -36,26 +36,28 @@ const readFile = (path) => {
   })
 }
 
-module.exports = (req, res, next) => {
+module.exports = (reqInfo) => {
   const t1 = Date.now()
-  const requestInfo = [
-    `url: ${decodeURI(req.originalUrl)}\n`,
-    `method: ${req.method}\n`,
-    `argument: ${req.params.arg}\n`,
-    `timestamp: ${t1}\n`,
-    `user-agent: ${req.headers['user-agent']}\n`
-  ]
+  return new Promise((resolve, reject) => {
+    const requestInfo = [
+      `url: ${reqInfo.url}\n`,
+      `method: ${reqInfo.method}\n`,
+      `argument: ${reqInfo.argument}\n`,
+      `timestamp: ${t1}\n`,
+      `user-agent: ${reqInfo.userAgent}\n`
+    ]
 
-  writeFile(JSON.stringify(requestInfo))
-    .then(filePath => {
-      readFile(filePath)
-        .then(content => {
-          const data = JSON.parse(content)
-          data.push(`log: ${filePath}\n`)
-          data.push(`Request time: ${Date.now() - t1}\n`)
-          res.json(data)
-        })
-        .catch(next)
-    })
-    .catch(next)
+    writeFile(JSON.stringify(requestInfo))
+      .then(filePath => {
+        readFile(filePath)
+          .then(content => {
+            const data = JSON.parse(content)
+            data.push(`log: ${filePath}\n`)
+            data.push(`Request time: ${Date.now() - t1}\n`)
+            resolve(data)
+          })
+          .catch(reject)
+      })
+      .catch(reject)
+  })
 }

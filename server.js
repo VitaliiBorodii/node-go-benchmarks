@@ -19,6 +19,19 @@ const serveIndex = serveFile.bind(null, 'index.html');
 const serveJS = serveFile.bind(null, 'main.js');
 const serveCSS = serveFile.bind(null, 'main.css');
 
+const loggerHandler = (req, res, next) => {
+  Logger({
+    url: decodeURI(req.originalUrl),
+    method: req.method,
+    argument: req.params.arg,
+    userAgent: req.headers['user-agent']
+  })
+    .then(data => {
+      res.json(data)
+    })
+    .catch(next)
+}
+
 const binaryTreesHandler = (req, res, next) => {
 
   const arg = req.params.arg;
@@ -68,7 +81,7 @@ Object.keys(endpoints).forEach((key) => {
 });
 
 benchRouter.get(`${endpoints.BINARY_TREES}:arg`, binaryTreesHandler);
-benchRouter.get(`${endpoints.LOGGER}:arg`, Logger);
+benchRouter.get(`${endpoints.LOGGER}:arg`, loggerHandler);
 
 
 app.use('/', staticRouter);

@@ -5,29 +5,39 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
-	"net/http"
 	"path"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 )
 
-type WriteResult struct {
+type RequestInfo struct {
+	Url       string
+	Method    string
+	Argument  string
+	UserAgent string
+}
+
+type Result struct {
+	Result []string
+	Error  error
+}
+
+type writeResult struct {
 	Result string
 	Error  error
 }
 
-type ReadResult struct {
+type readResult struct {
 	Result []byte
 	Error  error
 }
 
 func generateUUID() string {
-	first := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 16)
+	first := strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond), 16)
 	second := strconv.FormatInt(rand.Int63(), 16)
-	first = first[len(first)-4:]
-	second = second[len(second)-8:]
+	first = first[len(first) - 4:]
+	second = second[len(second) - 8:]
 	ff := "gola"
 	fs := first
 	sf := second[4:]
@@ -36,88 +46,64 @@ func generateUUID() string {
 
 }
 
-func writeFile(content []byte, c chan<- WriteResult) {
+func writeFile(content []byte, c chan <- writeResult) {
 	fileName := generateUUID()
 	filePath, err := filepath.Abs(path.Join("./logs", fmt.Sprintf("%s.json", fileName)))
 
 	if err != nil {
-		c <- WriteResult{Error: err}
+		c <- writeResult{"", err}
 		return
 	}
 
 	err = ioutil.WriteFile(filePath, content, 0644)
 
-	c <- WriteResult{filePath, err}
+	c <- writeResult{filePath, err}
 }
 
-func readFile(filePath string, c chan<- ReadResult) {
+func readFile(filePath string, c chan <- readResult) {
 	result, err := ioutil.ReadFile(filePath)
-	c <- ReadResult{result, err}
+	c <- readResult{result, err}
 }
 
-func errorHandler(w http.ResponseWriter, e error) {
-	http.Error(w, fmt.Sprintf("Internal Server Error: %s", e.Error()), http.StatusInternalServerError)
-}
-
-func Logger(w http.ResponseWriter, r *http.Request) {
+func Logger(r RequestInfo) Result {
 	t1 := time.Now().UnixNano() / int64(time.Millisecond)
 
-	pathSlice := strings.Split(r.URL.Path, "/")
-	arg := pathSlice[len(pathSlice)-1]
 	requestInfo := []string{
-		fmt.Sprintf("url: %s\n", (r.URL.Path)),
+		fmt.Sprintf("url: %s\n", (r.Url)),
 		fmt.Sprintf("method: %s\n", (r.Method)),
-		fmt.Sprintf("argument: %s\n", arg),
+		fmt.Sprintf("argument: %s\n", r.Argument),
 		fmt.Sprintf("timestamp: %s\n", strconv.FormatInt(t1, 10)),
-		fmt.Sprintf("user-agent: %s\n", r.Header.Get("user-agent")),
+		fmt.Sprintf("user-agent: %s\n", r.UserAgent),
 	}
 
-	writeChan := make(chan WriteResult)
+	writeChan := make(chan writeResult)
 
-	jsonW, err := json.Marshal(requestInfo)
-
-	if err != nil {
-		errorHandler(w, err)
-		return
-	}
+	jsonW, _ := json.Marshal(requestInfo)
 
 	go writeFile(jsonW, writeChan)
 
 	resultWrite := <-writeChan
 
 	if resultWrite.Error != nil {
-		errorHandler(w, resultWrite.Error)
-		return
+		return Result{nil, resultWrite.Error}
 	}
 
-	readChan := make(chan ReadResult)
+	readChan := make(chan readResult)
 
 	go readFile(resultWrite.Result, readChan)
 
 	resultRead := <-readChan
 
 	if resultRead.Error != nil {
-		errorHandler(w, resultRead.Error)
-		return
+		return Result{nil, resultRead.Error}
 	}
 
 	response := []string{}
 
-	err = json.Unmarshal(resultRead.Result, &response)
-
-	if err != nil {
-		errorHandler(w, err)
-		return
-	}
+	_ = json.Unmarshal(resultRead.Result, &response)
 
 	response = append(response, fmt.Sprintf("log: %s\n", resultWrite.Result))
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	response = append(response, fmt.Sprintf("Request time: %d\n", (time.Now().UnixNano()/int64(time.Millisecond))-t1))
+	response = append(response, fmt.Sprintf("Request time: %d\n", (time.Now().UnixNano() / int64(time.Millisecond)) - t1))
 
-	jsonR, err := json.Marshal(response)
-	if err != nil {
-		errorHandler(w, err)
-		return
-	}
-	w.Write([]byte(fmt.Sprintf("%s\n", jsonR)))
+	return Result{response, nil}
 }
