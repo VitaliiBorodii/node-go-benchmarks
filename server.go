@@ -5,14 +5,14 @@ import (
 
 	. "./bench"
 
-	"fmt"
-	"net/http"
-	"strconv"
 	"encoding/json"
+	"fmt"
 	"io"
-	"path/filepath"
-	"strings"
 	"io/ioutil"
+	"net/http"
+	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -20,7 +20,6 @@ const (
 )
 
 var endpoints map[string]string
-
 
 func serveFile(fileName string, w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("./public/", fileName))
@@ -40,7 +39,7 @@ func serveCSS(w http.ResponseWriter, r *http.Request) {
 
 func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	pathSlice := strings.Split(r.URL.Path, "/")
-	arg := pathSlice[len(pathSlice) - 1]
+	arg := pathSlice[len(pathSlice)-1]
 
 	n, err := strconv.ParseInt(arg, 10, 64)
 
@@ -49,7 +48,7 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if (n > 25) {
+	if n > 25 {
 		http.Error(w, fmt.Sprintf("Bad Request: `argument` must be lower or equal then 25 (got %d)", n), http.StatusBadRequest)
 		return
 	}
@@ -88,11 +87,11 @@ func main() {
 	staticRouter.HandleFunc("/", routesHandler)
 	staticRouter.HandleFunc("/{*}.js", serveJS)
 	staticRouter.HandleFunc("/{*}.css", serveCSS)
-	
+
 	raw, err := ioutil.ReadFile("./benchmarks.json")
 
-	if (err != nil) {
-		panic(err);
+	if err != nil {
+		panic(err)
 	}
 
 	json.Unmarshal(raw, &endpoints)
@@ -103,7 +102,6 @@ func main() {
 
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["BINARY_TREES"]), binaryTreesHandler)
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), Logger)
-
 
 	http.Handle("/", r)
 

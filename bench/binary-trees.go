@@ -14,9 +14,9 @@ package benc
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"time"
-	"runtime"
 )
 
 var minDepth = 4
