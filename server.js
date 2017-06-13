@@ -7,6 +7,8 @@ const os = require('os');
 const express = require('express');
 
 const binaryTrees = require('./bench/binary-trees');
+const Logger = require('./bench/logger');
+
 const endpoints = require('./benchmarks.json');
 const app = express();
 
@@ -66,9 +68,12 @@ Object.keys(endpoints).forEach((key) => {
 });
 
 benchRouter.get(`${endpoints.BINARY_TREES}:arg`, binaryTreesHandler);
+benchRouter.get(`${endpoints.LOGGER}:arg`, Logger);
+
 
 app.use('/', staticRouter);
 app.use(BENCH, benchRouter);
+
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

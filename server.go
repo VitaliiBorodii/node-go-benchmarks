@@ -98,11 +98,12 @@ func main() {
 	json.Unmarshal(raw, &endpoints)
 
 	for _, url := range endpoints {
-		fmt.Println(url)
 		staticRouter.HandleFunc(url, serveIndex)
 	}
 
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["BINARY_TREES"]), binaryTreesHandler)
+	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), Logger)
+
 
 	http.Handle("/", r)
 
