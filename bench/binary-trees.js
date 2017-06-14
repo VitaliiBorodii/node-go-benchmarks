@@ -3,7 +3,6 @@
  contributed by Isaac Gouy
  *reset*
  */
-const util = require('util')
 
 class TreeNode {
   constructor(left, right) {
@@ -33,7 +32,7 @@ module.exports = (n = 0) => {
 
   let check = bottomUpTree(stretchDepth).itemCheck()
 
-  response.push(util.format("stretch tree of depth %d\t check: %d\n", stretchDepth, check ))
+  response.push(`stretch tree of depth ${stretchDepth}\t check: ${check}\n`)
 
   const longLivedTree = bottomUpTree(maxDepth)
 
@@ -44,11 +43,11 @@ module.exports = (n = 0) => {
     for (let i = 1; i <= iterations; i++) {
       check += bottomUpTree(depth).itemCheck()
     }
-    response.push(util.format("%d\t trees of depth %d\t check: %d\n", iterations, depth, check))
+    response.push(`${iterations}\t trees of depth ${depth}\t check: ${check}\n`)
   }
 
-  response.push(util.format("long lived tree of depth %d\t check: %d\n", maxDepth, longLivedTree.itemCheck()))
-  response.push(util.format("Execution took: %d ms\n", Date.now() - start))
+  response.push(`long lived tree of depth ${maxDepth}\t check: ${longLivedTree.itemCheck()}\n`)
+  response.push(`Execution took: ${Date.now() - start} ms\n`)
 
   return response
 }

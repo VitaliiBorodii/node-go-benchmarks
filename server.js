@@ -1,5 +1,4 @@
 const http = require('http')
-const util = require('util')
 const cluster = require('cluster')
 const path = require('path')
 const fs = require('fs')
@@ -41,14 +40,14 @@ const binaryTreesHandler = (req, res, next) => {
   if (isNaN(n) || (n.toString() !== arg)) {
     return next({
       status: 400,
-      message: util.format('Bad Request: `%s` is not a number', arg)
+      message: `Bad Request: \`${arg}\` is not a number`
     })
   }
 
   if (n > 25) {
     return next({
       status: 400,
-      message: util.format('Bad Request: `argument` must be lower or equal then 25 (got %d)', n)
+      message: `Bad Request: \`argument\` must be lower or equal then 25 (got ${n})`
     })
   }
 
@@ -62,7 +61,7 @@ const spectralNormHandler = (req, res, next) => {
   if (isNaN(n) || (n.toString() !== arg)) {
     return next({
       status: 400,
-      message: util.format('Bad Request: `%s` is not a number', arg)
+      message: `Bad Request: \`${arg}\` is not a number`
     })
   }
 
