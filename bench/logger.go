@@ -65,13 +65,13 @@ func readFile(filePath string, c chan <- readResult) {
 }
 
 func Logger(r RequestInfo) Result {
-	t1 := time.Now().UnixNano() / int64(time.Millisecond)
+	start := time.Now().UnixNano() / int64(time.Millisecond)
 
 	requestInfo := []string{
 		fmt.Sprintf("url: %s\n", (r.Url)),
 		fmt.Sprintf("method: %s\n", (r.Method)),
 		fmt.Sprintf("argument: %s\n", r.Argument),
-		fmt.Sprintf("timestamp: %s\n", strconv.FormatInt(t1, 10)),
+		fmt.Sprintf("timestamp: %s\n", strconv.FormatInt(start, 10)),
 		fmt.Sprintf("user-agent: %s\n", r.UserAgent),
 	}
 
@@ -102,7 +102,7 @@ func Logger(r RequestInfo) Result {
 	_ = json.Unmarshal(resultRead.Result, &response)
 
 	response = append(response, fmt.Sprintf("log: %s\n", resultWrite.Result))
-	response = append(response, fmt.Sprintf("Execution time: %d ms\n", (time.Now().UnixNano() / int64(time.Millisecond)) - t1))
+	response = append(response, fmt.Sprintf("Execution time: %d ms\n", (time.Now().UnixNano() / int64(time.Millisecond)) - start))
 
 	return Result{response, nil}
 }

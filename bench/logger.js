@@ -35,13 +35,13 @@ const readFile = (path) => {
 }
 
 module.exports = (reqInfo) => {
-  const t1 = Date.now()
+  const start = Date.now()
   return new Promise((resolve, reject) => {
     const requestInfo = [
       `url: ${reqInfo.url}\n`,
       `method: ${reqInfo.method}\n`,
       `argument: ${reqInfo.argument}\n`,
-      `timestamp: ${t1}\n`,
+      `timestamp: ${start}\n`,
       `user-agent: ${reqInfo.userAgent}\n`
     ]
 
@@ -51,7 +51,7 @@ module.exports = (reqInfo) => {
           .then(content => {
             const data = JSON.parse(content)
             data.push(`log: ${filePath}\n`)
-            data.push(`Execution time: ${Date.now() - t1} ms\n`)
+            data.push(`Execution time: ${Date.now() - start} ms\n`)
             resolve(data)
           })
           .catch(reject)
