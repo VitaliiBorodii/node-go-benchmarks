@@ -88,6 +88,27 @@ func binaryTreesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("%s\n", string(b))))
 }
 
+func spectralNornHandler(w http.ResponseWriter, r *http.Request) {
+	pathSlice := strings.Split(r.URL.Path, "/")
+	arg := pathSlice[len(pathSlice)-1]
+
+	n, err := strconv.ParseInt(arg, 10, 64)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Bad Request: `%s` is not a number", arg), http.StatusBadRequest)
+		return
+	}
+
+	result := SpectralNorm(int(n))
+
+	b, err := json.Marshal(result)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Write([]byte(fmt.Sprintf("%s\n", string(b))))
+}
+
 func routesHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := "<pre>"
@@ -127,6 +148,8 @@ func main() {
 
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["BINARY_TREES"]), binaryTreesHandler)
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), loggerHandler)
+	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["SPECTRAL_NORM"]), spectralNornHandler)
+
 
 	http.Handle("/", r)
 

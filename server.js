@@ -7,7 +7,8 @@ const os = require('os')
 const express = require('express')
 
 const binaryTrees = require('./bench/binary-trees')
-const Logger = require('./bench/logger')
+const logger = require('./bench/logger')
+const spectralNorm = require('./bench/spectral-norm')
 
 const endpoints = require('./benchmarks.json')
 const app = express()
@@ -20,7 +21,7 @@ const serveJS = serveFile.bind(null, 'main.js')
 const serveCSS = serveFile.bind(null, 'main.css')
 
 const loggerHandler = (req, res, next) => {
-  Logger({
+  logger({
     url: req.baseUrl + req.url,
     method: req.method,
     argument: req.params.arg,
@@ -52,7 +53,21 @@ const binaryTreesHandler = (req, res, next) => {
   }
 
   res.status(200).json(binaryTrees(n))
-};
+}
+
+const spectralNormHandler = (req, res, next) => {
+  const arg = req.params.arg
+  const n = parseInt(arg)
+
+  if (isNaN(n) || (n.toString() !== arg)) {
+    return next({
+      status: 400,
+      message: util.format('Bad Request: `%s` is not a number', arg)
+    })
+  }
+
+  res.status(200).json(spectralNorm(n))
+}
 
 const routesHandler = (req, res) => {
 
@@ -82,6 +97,7 @@ Object.keys(endpoints).forEach((key) => {
 
 benchRouter.get(`${endpoints.BINARY_TREES}:arg`, binaryTreesHandler)
 benchRouter.get(`${endpoints.LOGGER}:arg`, loggerHandler)
+benchRouter.get(`${endpoints.SPECTRAL_NORM}:arg`, spectralNormHandler)
 
 
 app.use('/', staticRouter)

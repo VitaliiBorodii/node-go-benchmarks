@@ -1,4 +1,5 @@
 {
   "BINARY_TREES": "/binary-trees/",
-  "LOGGER": "/logger/"
+  "LOGGER": "/logger/",
+  "SPECTRAL_NORM": "/spectral-norm/"
 }
