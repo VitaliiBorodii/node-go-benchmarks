@@ -21,7 +21,7 @@ const serveCSS = serveFile.bind(null, 'main.css')
 
 const loggerHandler = (req, res, next) => {
   Logger({
-    url: decodeURI(req.originalUrl),
+    url: req.baseUrl + req.url,
     method: req.method,
     argument: req.params.arg,
     userAgent: req.headers['user-agent']
