@@ -51,7 +51,7 @@ module.exports = (reqInfo) => {
           .then(content => {
             const data = JSON.parse(content)
             data.push(`log: ${filePath}\n`)
-            data.push(`Request time: ${Date.now() - t1}\n`)
+            data.push(`Execution time: ${Date.now() - t1} ms\n`)
             resolve(data)
           })
           .catch(reject)

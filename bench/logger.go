@@ -102,7 +102,7 @@ func Logger(r RequestInfo) Result {
 	_ = json.Unmarshal(resultRead.Result, &response)
 
 	response = append(response, fmt.Sprintf("log: %s\n", resultWrite.Result))
-	response = append(response, fmt.Sprintf("Request time: %d\n", (time.Now().UnixNano() / int64(time.Millisecond)) - t1))
+	response = append(response, fmt.Sprintf("Execution time: %d ms\n", (time.Now().UnixNano() / int64(time.Millisecond)) - t1))
 
 	return Result{response, nil}
 }
