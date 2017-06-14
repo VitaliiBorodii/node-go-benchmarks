@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-generateUUID = () => {
+const generateUUID = () => {
   const ff = 'node'
   const fs = Date.now().toString(16).slice(-4)
   const sf = Math.random().toString(16).slice(-4)
