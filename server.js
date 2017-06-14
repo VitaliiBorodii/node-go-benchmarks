@@ -52,7 +52,7 @@ const binaryTreesHandler = (req, res, next) => {
     })
   }
 
-  res.status(200).json(binaryTrees(n))
+  res.json(binaryTrees(n))
 }
 
 const spectralNormHandler = (req, res, next) => {
@@ -66,7 +66,7 @@ const spectralNormHandler = (req, res, next) => {
     })
   }
 
-  res.status(200).json(spectralNorm(n))
+  res.json(spectralNorm(n))
 }
 
 const routesHandler = (req, res) => {
@@ -80,7 +80,7 @@ const routesHandler = (req, res) => {
 
   response += '</pre>'
 
-  res.status(200).send(response)
+  res.send(response)
 };
 
 const staticRouter = express.Router()
