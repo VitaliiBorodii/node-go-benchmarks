@@ -24,8 +24,6 @@ const bottomUpTree = (depth) => {
 module.exports = (n = 0) => {
   const start = Date.now()
   const response = []
-
-
   const minDepth = 4
   const maxDepth = Math.max(minDepth + 2, n)
   const stretchDepth = maxDepth + 1

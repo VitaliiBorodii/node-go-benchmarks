@@ -14,6 +14,6 @@ This was my primary interest - not just to run the code and see how long will it
 
 then 
 
-`go build server.go && ./server` - to run **go** server
+`npm run go-server` - to run **go** server
 
-`node server.js` - to run **Node.js** server
+`npm run node-server` - to run **Node.js** server
