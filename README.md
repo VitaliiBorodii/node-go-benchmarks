@@ -1,6 +1,6 @@
 This repo is created for capabilities comparison of **Node.js** and **go**lang
 
-The purpose of this not to start a hollywar for what is better, but to learn strong sides of both program languages and determine their weak spots and bottlenecks.
+The purpose of it - is to learn strong sides of both program languages and determine their weak spots and bottlenecks.
 
 Most of the benchmark code is taken from [here](https://benchmarksgame.alioth.debian.org/u64q/compare.php?lang=go&lang2=node)
 
@@ -8,7 +8,7 @@ I only changed code a little (optimized what I could) to make it importable from
 
 This was my primary interest - not just to run the code and see how long will it take, but to see how it can work in client-server application.
 
-`go get -u` - to install **go** dependencies
+`go get ./...` - to install **go** dependencies
 
 `nmp i` - to install **Node.js** dependencies
 

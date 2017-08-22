@@ -34,18 +34,18 @@ type readResult struct {
 }
 
 func generateUUID() string {
-	timestamp := strconv.FormatInt(time.Now().UnixNano() / int64(time.Millisecond), 16)
+	timestamp := strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 16)
 	rand1 := strconv.FormatInt(rand.Int63(), 16)
 	rand2 := strconv.FormatInt(rand.Int63(), 16)
 	ff := "gola"
-	fs := timestamp[len(timestamp) - 4:]
-	sf := rand1[len(rand1) - 4:]
-	ss := rand2[len(rand2) - 4:]
+	fs := timestamp[len(timestamp)-4:]
+	sf := rand1[len(rand1)-4:]
+	ss := rand2[len(rand2)-4:]
 	return fmt.Sprintf("%s-%s-%s-%s", ff, fs, sf, ss)
 
 }
 
-func writeFile(content []byte, c chan <- writeResult) {
+func writeFile(content []byte, c chan<- writeResult) {
 	fileName := generateUUID()
 	filePath, err := filepath.Abs(path.Join("./logs", fmt.Sprintf("%s.json", fileName)))
 
@@ -59,7 +59,7 @@ func writeFile(content []byte, c chan <- writeResult) {
 	c <- writeResult{filePath, err}
 }
 
-func readFile(filePath string, c chan <- readResult) {
+func readFile(filePath string, c chan<- readResult) {
 	result, err := ioutil.ReadFile(filePath)
 	c <- readResult{result, err}
 }
@@ -102,7 +102,7 @@ func Logger(r RequestInfo) Result {
 	_ = json.Unmarshal(resultRead.Result, &response)
 
 	response = append(response, fmt.Sprintf("log: %s\n", resultWrite.Result))
-	response = append(response, fmt.Sprintf("Execution time: %d ms\n", (time.Now().UnixNano() / int64(time.Millisecond)) - start))
+	response = append(response, fmt.Sprintf("Execution time: %d ms\n", (time.Now().UnixNano()/int64(time.Millisecond))-start))
 
 	return Result{response, nil}
 }

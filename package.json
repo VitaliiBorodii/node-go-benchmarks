@@ -4,6 +4,7 @@
   "description": "This repo is created for capabilities comparison of Node.js and golang",
   "main": "server.js",
   "scripts": {
+    "clean": "mkdir -p ./logs && rm -rf ./logs/**",
     "go-server": "go build server.go && ./server",
     "node-server": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"

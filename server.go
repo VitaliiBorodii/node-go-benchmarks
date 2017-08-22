@@ -150,7 +150,6 @@ func main() {
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["LOGGER"]), loggerHandler)
 	benchRouter.HandleFunc(fmt.Sprintf("%s{arg}", endpoints["SPECTRAL_NORM"]), spectralNornHandler)
 
-
 	http.Handle("/", r)
 
 	fmt.Println("Server is listening at http://localhost:8001")
